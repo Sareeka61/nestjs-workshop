@@ -6,6 +6,7 @@ import {
   Patch,
   Param,
   Delete,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { CreateTaskDto } from './dto/task.dto';
 import { PrismaService } from 'src/pisma.service';
@@ -29,7 +30,36 @@ export class TaskController {
   }
 
   @Get(':taskName')
-  searchTask(@Param('taskName') taskName: string) {
-    return this.arr.find((task) => task.taskName === taskName);
+  async searchTask(@Param('taskName') taskName: string) {
+    return await this.taskService.task.findFirst({
+      where: {
+        taskName,
+      },
+    });
+  }
+
+  @Patch(':id')
+  async updateTask(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() task: CreateTaskDto,
+  ) {
+    return await this.taskService.task.update({
+      where: {
+        id: id,
+      },
+      data: {
+        taskName: task.taskName,
+        taskStatus: task.taskStatus,
+      },
+    });
+  }
+
+  @Delete(':id')
+  async deleteTask(@Param('id', ParseIntPipe) id: number) {
+    return await this.taskService.task.delete({
+      where: {
+        id: id,
+      },
+    });
   }
 }
