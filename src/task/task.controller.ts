@@ -7,28 +7,29 @@ import {
   Param,
   Delete,
 } from '@nestjs/common';
-import { TaskService } from './task.service';
 import { CreateTaskDto } from './dto/task.dto';
+import { PrismaService } from 'src/pisma.service';
 
 @Controller('task')
 export class TaskController {
-  constructor(private readonly taskService: TaskService) {}
+  constructor(private readonly taskService: PrismaService) {}
 
   arr = [];
 
   @Post()
-  addTask(@Body() taskBody: CreateTaskDto) {
-    this.arr.push(taskBody);
-    return 'success';
+  async addTask(@Body() taskBody: CreateTaskDto) {
+    await this.taskService.task.create({
+      data: taskBody,
+    });
   }
 
   @Get()
-  getTasks() {
-    return this.arr;
+  async getTasks() {
+    return await this.taskService.task.findMany();
   }
 
-  @Get(':taskname')
-  searchTask(@Param('taskname') taskname: string) {
-    return this.arr.find((task) => task.taskname === taskname);
+  @Get(':taskName')
+  searchTask(@Param('taskName') taskName: string) {
+    return this.arr.find((task) => task.taskName === taskName);
   }
 }
